@@ -14,4 +14,4 @@ from: 谁发来的
 to: 发给谁的
 msg: 发送的内容
 ```
-具体使用请看测试案例 test.cpp
+具体使用请看测试案例 ../test/json_test.cpp
