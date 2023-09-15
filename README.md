@@ -30,3 +30,6 @@
 >* mysql数据库环境
 >* nginx
 >* CMake环境
+
+## 数据库设计
+![database](./z_source/img/database.JPG)
