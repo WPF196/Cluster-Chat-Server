@@ -2,11 +2,11 @@
 #define CHATSERVICE_H
 
 #include "json.hpp"
+#include "usermodel.hpp"
 
 #include <muduo/net/TcpConnection.h>
 #include <unordered_map>        // 一个消息id映射一个事件处理
 #include <functional>
-
 using namespace std;
 using namespace std;
 using namespace muduo;
@@ -23,8 +23,9 @@ public:
     // 单例
     static ChatService* instance();
 
-    // 处理登录、注册业务
+    // 处理登录业务（id + pwd）
     void login(const TcpConnectionPtr &conn, json &js, Timestamp time);
+    // 处理注册业务（user + password）
     void reg(const TcpConnectionPtr &conn, json &js, Timestamp time);
     // 获取消息对应的处理器
     MsgHandler getHandler(int msgid);
@@ -36,6 +37,9 @@ private:
 
     // 存储消息id和其对应的业务处理方法
     unordered_map<int, MsgHandler> _msgHandlerMap;
+
+    // 数据操作类对象
+    UserModel _userModel;
 };
 
 #endif
