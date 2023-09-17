@@ -15,6 +15,7 @@ ChatService::ChatService()
 {
     _msgHandlerMap.insert({LOGIN_MSG, bind(&ChatService::login, this, _1, _2, _3)});
     _msgHandlerMap.insert({REG_MSG, bind(&ChatService::reg, this, _1, _2, _3)});
+    _msgHandlerMap.insert({ONE_CHAT_MSG, bind(&ChatService::oneChat, this, _1, _2, _3)});
 }
 
 MsgHandler ChatService::getHandler(int msgid)
@@ -49,9 +50,15 @@ void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
         }
         else{
             // 登录成功
-            user.setState("online");
-            _userModel.updateState(user);
+            {
+                // 智能锁，防止死锁，遇到下一个 } 自动析构
+                lock_guard<mutex> lock(_connMutex);
+                _userConnMap.insert({id, conn});
+            }
 
+            user.setState("online");
+            // 数据库的并发由mysql_server来保证安全
+            _userModel.updateState(user);
 
             json response;
             response["msgid"] = LOGIN_MSG_ACK;
@@ -96,5 +103,38 @@ void ChatService::reg(const TcpConnectionPtr &conn, json &js, Timestamp time)
         response["msgid"] = REG_MSG_ACK;
         response["errno"] = 1;
         conn->send(response.dump());
+    }
+}
+
+void ChatService::clientCloseException(const TcpConnectionPtr &conn)
+{   
+    User user;
+    {
+        lock_guard<mutex> lock(_connMutex);
+        for(auto it  = _userConnMap.begin(); it != _userConnMap.end(); ++it)
+            if(it->second == conn){
+                user.setId(it->first);
+                _userConnMap.erase(it);
+                break;
+            }
+    }
+    if(user.getId() != -1){
+        user.setState("offline");
+        _userModel.updateState(user);
+    }
+}
+
+void ChatService::oneChat(const TcpConnectionPtr &conn, json &js, Timestamp time)
+{
+    int toid = js["to"].get<int>();
+
+    {
+        lock_guard<mutex> lock(_connMutex);
+        auto it = _userConnMap.find(toid);
+        if(it != _userConnMap.end()){
+            // toid在线，服务器主动推送消息给toid用户
+            it->second->send(js.dump());
+            return;
+        }
     }
 }
