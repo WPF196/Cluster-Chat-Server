@@ -3,6 +3,7 @@
 
 #include "json.hpp"
 #include "usermodel.hpp"
+#include "offlinemessagemodel.hpp"
 
 #include <muduo/net/TcpConnection.h>
 #include <unordered_map>        // 一个消息id映射一个事件处理
@@ -50,6 +51,7 @@ private:
 
     // 数据操作类对象
     UserModel _userModel;
+    OfflineMsgModel _offlineMsgModel;
 };
 
 #endif
