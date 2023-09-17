@@ -63,3 +63,13 @@ bool UserModel::insert(User &user)
         
     return false;
  }
+
+ void UserModel::resetState()
+ {  
+    // 组装sql语句
+    char sql[1024] = {"update user set state = 'offline' where state = 'online'"};
+
+    MySQL mysql;
+    if(mysql.connect())
+        mysql.update(sql);
+ }
