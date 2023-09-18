@@ -19,9 +19,6 @@ public:
     // 查询用户的离线消息
     vector<string> query(int userid);
 
-    
-private:
-
 };
 
 #endif

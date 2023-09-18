@@ -2,6 +2,7 @@
 #include "json.hpp"
 #include "chatservice.hpp"
 
+#include <iostream>
 #include <functional>
 #include <string>
 
@@ -14,14 +15,14 @@ ChatServer::ChatServer(EventLoop* loop,
             const string& nameArg)
     :_server(loop, listenAddr, nameArg) ,_loop(loop)
 {  
-    // 注册连接回调
+    // 注册链接回调
     _server.setConnectionCallback(std::bind(&ChatServer::onConnection, this, _1));
 
     // 注册消息回调
     _server.setMessageCallback(std::bind(&ChatServer::onMessage, this, _1, _2, _3));
 
     // 设置线程数量
-    _server.setThreadNum(8);
+    _server.setThreadNum(4);
 }
 
 void ChatServer::start()
@@ -43,6 +44,10 @@ void ChatServer::onMessage(const TcpConnectionPtr &conn,
                             Timestamp time)
 {
     string buf = buffer->retrieveAllAsString();
+
+    // 测试，添加json打印代码
+    cout << buf << endl;
+
     json js = json::parse(buf);     // 数据的反序列化
 
     // 目标：完全解偶网络模块的代码和业务模块的代码

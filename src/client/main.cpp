@@ -1,8 +1,4 @@
 #include "json.hpp"
-#include "group.hpp"
-#include "user.hpp"
-#include "public.hpp"
-
 #include <iostream>
 #include <thread>
 #include <string>
@@ -11,6 +7,9 @@
 #include <ctime>
 #include <unordered_map>
 #include <functional>
+using namespace std;
+using json = nlohmann::json;
+
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -19,8 +18,9 @@
 #include <semaphore.h>
 #include <atomic>
 
-using namespace std;
-using json = nlohmann::json;
+#include "group.hpp"
+#include "user.hpp"
+#include "public.hpp"
 
 // 记录当前系统登录的用户信息
 User g_currentUser;

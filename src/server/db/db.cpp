@@ -1,4 +1,5 @@
 #include "db.h"
+#include <muduo/base/Logging.h>
 
 // 数据库配置信息
 static string server = "127.0.0.1";
@@ -20,8 +21,7 @@ MySQL::~MySQL()
 bool MySQL::connect()
 {
     MYSQL *p = mysql_real_connect(_conn, server.c_str(), user.c_str(),
-    password.c_str(), dbname.c_str(), 3306, nullptr, 0);
-    
+                                  password.c_str(), dbname.c_str(), 3306, nullptr, 0);
     if (p != nullptr){
         // 设置中文编码
         mysql_query(_conn, "set names gbk");
@@ -36,7 +36,8 @@ bool MySQL::connect()
 bool MySQL::update(string sql)
 {
     if (mysql_query(_conn, sql.c_str())){
-        LOG_INFO << __FILE__ << ":" << __LINE__ << ":" << sql << "更新失败!";
+        LOG_INFO << __FILE__ << ":" << __LINE__ << ":"
+                 << sql << "更新失败!";
         return false;
     }
     return true;
